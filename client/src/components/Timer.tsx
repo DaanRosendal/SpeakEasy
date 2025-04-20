@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { PlayIcon, PauseIcon, StopCircleIcon, RotateCcwIcon } from "lucide-react";
 import { SpeechType, DEFAULT_TIMES } from "@/lib/constants";
-import useSpeechTimer from "@/hooks/useSpeechTimer";
+import useCountdownTimer from "@/hooks/useCountdownTimer";
 
 interface TimerProps {
   speechType: SpeechType;
@@ -41,7 +41,7 @@ export default function Timer({
     resumeTimer,
     resetTimer,
     stopTimer
-  } = useSpeechTimer(speechType, onSpeechComplete);
+  } = useCountdownTimer(speechType, onSpeechComplete);
 
   useEffect(() => {
     // Update timer defaults when speech type changes
