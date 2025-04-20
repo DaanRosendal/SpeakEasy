@@ -189,6 +189,8 @@ export default function Timer({
           variant="secondary" 
           size="icon" 
           onClick={handlePauseResume}
+          disabled={!isRunning}
+          className={isRunning ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-800 opacity-50"}
         >
           {isPaused ? <PlayIcon className="h-4 w-4" /> : <PauseIcon className="h-4 w-4" />}
         </Button>

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { SpeechType, DEFAULT_TIMES } from "@/lib/constants";
 
-function useSpeechTimer(
+const useSpeechTimer = (
   speechType: SpeechType,
   onComplete?: () => void
-) {
+) => {
   // Default times based on speech type from constants
   const getDefaultTime = useCallback(() => {
     return DEFAULT_TIMES[speechType];
@@ -17,25 +17,25 @@ function useSpeechTimer(
   const [hideCountdown, setHideCountdown] = useState(false);
   const [timerColor, setTimerColor] = useState("#FFFFFF");
   const [timeAlert, setTimeAlert] = useState<string | null>(null);
-  const [totalSeconds, setTotalSeconds] = useState(() => minutes * 60 + seconds);
-  const [remainingSeconds, setRemainingSeconds] = useState(() => minutes * 60 + seconds);
+  const [totalSeconds, setTotalSeconds] = useState(getDefaultTime().minutes * 60 + getDefaultTime().seconds);
+  const [remainingSeconds, setRemainingSeconds] = useState(getDefaultTime().minutes * 60 + getDefaultTime().seconds);
   const [progress, setProgress] = useState(1);
   
-  const timerRef = useRef<number | null>(null);
-  const alertTimeoutRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Calculate total and remaining seconds when minutes or seconds change
+  // Calculate total seconds when minutes or seconds change in settings
   useEffect(() => {
-    const total = (minutes * 60) + seconds;
-    setTotalSeconds(total);
-    if (!isRunning) {
+    if (!isRunning && !isPaused) {
+      const total = (minutes * 60) + seconds;
+      setTotalSeconds(total);
       setRemainingSeconds(total);
+      setProgress(1);
     }
-  }, [minutes, seconds, isRunning]);
+  }, [minutes, seconds, isRunning, isPaused]);
 
   // Update progress when remaining seconds change
   useEffect(() => {
-    // Guard against division by zero or undefined
     if (totalSeconds > 0) {
       setProgress(remainingSeconds / totalSeconds);
     } else {
@@ -55,6 +55,17 @@ function useSpeechTimer(
     };
   }, []);
 
+  // Update default times when speech type changes
+  useEffect(() => {
+    if (!isRunning && !isPaused) {
+      const defaultTime = getDefaultTime();
+      setMinutes(defaultTime.minutes);
+      setSeconds(defaultTime.seconds);
+      setTotalSeconds(defaultTime.minutes * 60 + defaultTime.seconds);
+      setRemainingSeconds(defaultTime.minutes * 60 + defaultTime.seconds);
+    }
+  }, [speechType, getDefaultTime, isRunning, isPaused]);
+
   // Show time alert for a few seconds
   const showTimeAlert = useCallback((message: string) => {
     setTimeAlert(message);
@@ -63,9 +74,8 @@ function useSpeechTimer(
       clearTimeout(alertTimeoutRef.current);
     }
     
-    alertTimeoutRef.current = window.setTimeout(() => {
+    alertTimeoutRef.current = setTimeout(() => {
       setTimeAlert(null);
-      alertTimeoutRef.current = null;
     }, 3000);
   }, []);
 
@@ -82,11 +92,48 @@ function useSpeechTimer(
     }
   }, [remainingSeconds]);
 
+  // Create timer tick function
+  const timerTick = useCallback(() => {
+    setRemainingSeconds(prev => {
+      if (prev <= 1) {
+        // Timer complete
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setIsRunning(false);
+        setIsPaused(false);
+        showTimeAlert("Time's up!");
+        
+        if (onComplete) {
+          setTimeout(onComplete, 1000);
+        }
+        
+        return 0;
+      }
+      
+      const newValue = prev - 1;
+      
+      // Show alerts at specific times
+      if (newValue === 60) {
+        showTimeAlert("1 minute remaining");
+      } else if (newValue === 30) {
+        showTimeAlert("30 seconds remaining");
+      }
+      
+      // Update display time
+      setMinutes(Math.floor(newValue / 60));
+      setSeconds(newValue % 60);
+      
+      return newValue;
+    });
+  }, [onComplete, showTimeAlert]);
+
   // Start the timer
   const startTimer = useCallback(() => {
     if (isRunning) return;
     
-    // Reset to initial values
+    // Calculate total seconds from current minutes and seconds
     const totalSecondsValue = (minutes * 60) + seconds;
     setTotalSeconds(totalSecondsValue);
     setRemainingSeconds(totalSecondsValue);
@@ -96,40 +143,14 @@ function useSpeechTimer(
     setIsRunning(true);
     setIsPaused(false);
     
-    timerRef.current = window.setInterval(() => {
-      setRemainingSeconds(prev => {
-        if (prev <= 1) {
-          // Timer complete
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-          }
-          setIsRunning(false);
-          showTimeAlert("Time's up!");
-          
-          if (onComplete) {
-            setTimeout(onComplete, 1000);
-          }
-          
-          return 0;
-        }
-        
-        const newValue = prev - 1;
-        
-        // Show alerts at specific times
-        if (newValue === 60) {
-          showTimeAlert("1 minute remaining");
-        } else if (newValue === 30) {
-          showTimeAlert("30 seconds remaining");
-        }
-        
-        // Update display time
-        setMinutes(Math.floor(newValue / 60));
-        setSeconds(newValue % 60);
-        
-        return newValue;
-      });
-    }, 1000);
-  }, [isRunning, minutes, seconds, showTimeAlert, onComplete]);
+    // Clear any existing timers
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    // Start new timer
+    timerRef.current = setInterval(timerTick, 1000);
+  }, [minutes, seconds, isRunning, timerTick]);
 
   // Pause the timer
   const pauseTimer = useCallback(() => {
@@ -137,7 +158,9 @@ function useSpeechTimer(
     
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
+    
     setIsPaused(true);
   }, [isRunning, isPaused]);
 
@@ -147,43 +170,21 @@ function useSpeechTimer(
     
     setIsPaused(false);
     
-    timerRef.current = window.setInterval(() => {
-      setRemainingSeconds(prev => {
-        if (prev <= 1) {
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-          }
-          setIsRunning(false);
-          showTimeAlert("Time's up!");
-          
-          if (onComplete) {
-            setTimeout(onComplete, 1000);
-          }
-          
-          return 0;
-        }
-        
-        const newValue = prev - 1;
-        
-        if (newValue === 60) {
-          showTimeAlert("1 minute remaining");
-        } else if (newValue === 30) {
-          showTimeAlert("30 seconds remaining");
-        }
-        
-        setMinutes(Math.floor(newValue / 60));
-        setSeconds(newValue % 60);
-        
-        return newValue;
-      });
-    }, 1000);
-  }, [isRunning, isPaused, showTimeAlert, onComplete]);
+    // Clear any existing interval just in case
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    // Start new timer
+    timerRef.current = setInterval(timerTick, 1000);
+  }, [isRunning, isPaused, timerTick]);
 
-  // Reset the timer to initial state but keep it running
+  // Reset the timer to initial state
   const resetTimer = useCallback(() => {
     // Clear existing interval
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
     
     // Reset to defaults based on speech type
@@ -202,17 +203,17 @@ function useSpeechTimer(
     
     // If timer was running, restart it
     if (isRunning) {
-      const timerID = window.setTimeout(() => {
-        startTimer();
-        clearTimeout(timerID);
-      }, 0);
+      setIsRunning(true);
+      setIsPaused(false);
+      timerRef.current = setInterval(timerTick, 1000);
     }
-  }, [getDefaultTime, isRunning, startTimer]);
+  }, [getDefaultTime, isRunning, timerTick]);
 
   // Stop the timer completely
   const stopTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
     
     setIsRunning(false);
@@ -231,7 +232,7 @@ function useSpeechTimer(
     setRemainingSeconds(totalSecondsValue);
     setProgress(1);
     setTimerColor("#FFFFFF");
-  }, [getDefaultTime]);
+  }, [getDefaultTime, timerTick]);
 
   return {
     minutes,
