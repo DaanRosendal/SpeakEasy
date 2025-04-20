@@ -1,42 +1,24 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { SpeechType } from "@/lib/constants";
+import { SpeechType, DEFAULT_TIMES } from "@/lib/constants";
 
-export default function useSpeechTimer(
+function useSpeechTimer(
   speechType: SpeechType,
   onComplete?: () => void
 ) {
-  // Default times based on speech type
-  const getDefaultMinutes = useCallback(() => {
-    switch (speechType) {
-      case SpeechType.IMPROMPTU:
-      case SpeechType.EVALUATIVE:
-        return 2;
-      case SpeechType.PREPARED:
-        return 7;
-      default:
-        return 2;
-    }
+  // Default times based on speech type from constants
+  const getDefaultTime = useCallback(() => {
+    return DEFAULT_TIMES[speechType];
   }, [speechType]);
 
-  const getDefaultSeconds = useCallback(() => {
-    switch (speechType) {
-      case SpeechType.IMPROMPTU:
-      case SpeechType.EVALUATIVE:
-        return 30;
-      default:
-        return 0;
-    }
-  }, [speechType]);
-
-  const [minutes, setMinutes] = useState(getDefaultMinutes());
-  const [seconds, setSeconds] = useState(getDefaultSeconds());
+  const [minutes, setMinutes] = useState(getDefaultTime().minutes);
+  const [seconds, setSeconds] = useState(getDefaultTime().seconds);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [hideCountdown, setHideCountdown] = useState(false);
   const [timerColor, setTimerColor] = useState("#FFFFFF");
   const [timeAlert, setTimeAlert] = useState<string | null>(null);
-  const [totalSeconds, setTotalSeconds] = useState(0);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const [totalSeconds, setTotalSeconds] = useState(() => minutes * 60 + seconds);
+  const [remainingSeconds, setRemainingSeconds] = useState(() => minutes * 60 + seconds);
   const [progress, setProgress] = useState(1);
   
   const timerRef = useRef<number | null>(null);
@@ -46,8 +28,10 @@ export default function useSpeechTimer(
   useEffect(() => {
     const total = (minutes * 60) + seconds;
     setTotalSeconds(total);
-    setRemainingSeconds(total);
-  }, [minutes, seconds]);
+    if (!isRunning) {
+      setRemainingSeconds(total);
+    }
+  }, [minutes, seconds, isRunning]);
 
   // Update progress when remaining seconds change
   useEffect(() => {
@@ -116,7 +100,9 @@ export default function useSpeechTimer(
       setRemainingSeconds(prev => {
         if (prev <= 1) {
           // Timer complete
-          clearInterval(timerRef.current!);
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
           setIsRunning(false);
           showTimeAlert("Time's up!");
           
@@ -149,7 +135,9 @@ export default function useSpeechTimer(
   const pauseTimer = useCallback(() => {
     if (!isRunning || isPaused) return;
     
-    clearInterval(timerRef.current!);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     setIsPaused(true);
   }, [isRunning, isPaused]);
 
@@ -162,7 +150,9 @@ export default function useSpeechTimer(
     timerRef.current = window.setInterval(() => {
       setRemainingSeconds(prev => {
         if (prev <= 1) {
-          clearInterval(timerRef.current!);
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
           setIsRunning(false);
           showTimeAlert("Time's up!");
           
@@ -197,8 +187,10 @@ export default function useSpeechTimer(
     }
     
     // Reset to defaults based on speech type
-    const mins = getDefaultMinutes();
-    const secs = getDefaultSeconds();
+    const defaultTime = getDefaultTime();
+    const mins = defaultTime.minutes;
+    const secs = defaultTime.seconds;
+    
     setMinutes(mins);
     setSeconds(secs);
     
@@ -210,9 +202,12 @@ export default function useSpeechTimer(
     
     // If timer was running, restart it
     if (isRunning) {
-      startTimer();
+      const timerID = window.setTimeout(() => {
+        startTimer();
+        clearTimeout(timerID);
+      }, 0);
     }
-  }, [getDefaultMinutes, getDefaultSeconds, isRunning, startTimer]);
+  }, [getDefaultTime, isRunning, startTimer]);
 
   // Stop the timer completely
   const stopTimer = useCallback(() => {
@@ -224,8 +219,10 @@ export default function useSpeechTimer(
     setIsPaused(false);
     
     // Reset to defaults
-    const mins = getDefaultMinutes();
-    const secs = getDefaultSeconds();
+    const defaultTime = getDefaultTime();
+    const mins = defaultTime.minutes;
+    const secs = defaultTime.seconds;
+    
     setMinutes(mins);
     setSeconds(secs);
     
@@ -234,7 +231,7 @@ export default function useSpeechTimer(
     setRemainingSeconds(totalSecondsValue);
     setProgress(1);
     setTimerColor("#FFFFFF");
-  }, [getDefaultMinutes, getDefaultSeconds]);
+  }, [getDefaultTime]);
 
   return {
     minutes,
@@ -255,3 +252,5 @@ export default function useSpeechTimer(
     stopTimer
   };
 }
+
+export default useSpeechTimer;

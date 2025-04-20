@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { PlayIcon, PauseIcon, StopCircleIcon, RotateCcwIcon } from "lucide-react";
-import { SpeechType } from "@/lib/constants";
+import { SpeechType, DEFAULT_TIMES } from "@/lib/constants";
 import useSpeechTimer from "@/hooks/useSpeechTimer";
 
 interface TimerProps {
@@ -45,20 +45,9 @@ export default function Timer({
 
   useEffect(() => {
     // Update timer defaults when speech type changes
-    switch (speechType) {
-      case SpeechType.IMPROMPTU:
-        setMinutes(2);
-        setSeconds(30);
-        break;
-      case SpeechType.PREPARED:
-        setMinutes(7);
-        setSeconds(0);
-        break;
-      case SpeechType.EVALUATIVE:
-        setMinutes(2);
-        setSeconds(30);
-        break;
-    }
+    const defaultTimes = DEFAULT_TIMES[speechType];
+    setMinutes(defaultTimes.minutes);
+    setSeconds(defaultTimes.seconds);
   }, [speechType, setMinutes, setSeconds]);
 
   const handleStartSpeech = () => {
