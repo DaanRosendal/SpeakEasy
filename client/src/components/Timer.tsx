@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { PlayIcon, PauseIcon, Pause, RotateCcwIcon } from "lucide-react";
+import { PlayIcon, PauseIcon, StopCircleIcon, RotateCcwIcon } from "lucide-react";
 import { SpeechType } from "@/lib/constants";
 import useSpeechTimer from "@/hooks/useSpeechTimer";
 
@@ -163,7 +163,7 @@ export default function Timer({
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray="691"
-            strokeDashoffset={691 - (691 * progress)}
+            strokeDashoffset={`${691 - (691 * (isNaN(progress) ? 1 : progress))}`}
             className="transition-all duration-1000"
           />
         </svg>
@@ -215,7 +215,7 @@ export default function Timer({
           size="icon" 
           onClick={handleStopSpeech}
         >
-          <Pause className="h-4 w-4" />
+          <StopCircleIcon className="h-4 w-4" />
         </Button>
       </div>
     </motion.div>

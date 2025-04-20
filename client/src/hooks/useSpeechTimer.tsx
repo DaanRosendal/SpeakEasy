@@ -51,7 +51,12 @@ export default function useSpeechTimer(
 
   // Update progress when remaining seconds change
   useEffect(() => {
-    setProgress(remainingSeconds / totalSeconds);
+    // Guard against division by zero or undefined
+    if (totalSeconds > 0) {
+      setProgress(remainingSeconds / totalSeconds);
+    } else {
+      setProgress(1);
+    }
   }, [remainingSeconds, totalSeconds]);
 
   // Clean up intervals and timeouts on unmount
