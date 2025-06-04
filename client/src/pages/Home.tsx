@@ -1,11 +1,12 @@
 import { useState, useCallback } from "react";
-import { Expand } from "lucide-react";
+import { Expand, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SpeechTypeSelector from "@/components/SpeechTypeSelector";
 import TopicGenerator from "@/components/TopicGenerator";
 import Timer from "@/components/Timer";
 import SpeechCompletionScreen from "@/components/CompletionModal";
 import { SpeechType } from "@/lib/constants";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function Home() {
   const [speechType, setSpeechType] = useState<SpeechType>(
@@ -19,6 +20,8 @@ export default function Home() {
   const [hideCountdown, setHideCountdown] = useState(false);
   const [customMinutes, setCustomMinutes] = useState<number | null>(null);
   const [customSeconds, setCustomSeconds] = useState<number | null>(null);
+
+  const { toggleTheme, isDark } = useTheme();
 
   const handleSpeechTypeChange = useCallback((type: SpeechType) => {
     setSpeechType(type);
@@ -108,14 +111,28 @@ export default function Home() {
                 SpeakEasy
               </h1>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleFullscreen}
-              className="text-foreground"
-            >
-              <Expand className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="text-foreground"
+              >
+                {isDark ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleFullscreen}
+                className="text-foreground"
+              >
+                <Expand className="h-5 w-5" />
+              </Button>
+            </div>
           </header>
 
           {/* Main Content */}

@@ -68,21 +68,23 @@ export default function TopicGenerator({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
     >
-      <Card className="bg-surface border-gray-700">
+      <Card className="bg-card border-border border-2">
         <CardContent className="pt-6">
-          <h2 className="text-xl font-semibold mb-4">Topic Generator</h2>
+          <h2 className="text-xl font-semibold mb-4 text-foreground">
+            Topic Generator
+          </h2>
 
           <div className="mb-4">
             <Label
               htmlFor="theme-selector"
-              className="block mb-2 text-sm font-medium"
+              className="block mb-2 text-sm font-medium text-foreground"
             >
               Select Theme
             </Label>
             <Select value={selectedTheme} onValueChange={handleThemeChange}>
               <SelectTrigger
                 id="theme-selector"
-                className="w-full bg-surface border-gray-700"
+                className="w-full bg-background border-border text-foreground"
               >
                 <SelectValue placeholder="Select a theme" />
               </SelectTrigger>
@@ -130,10 +132,10 @@ export default function TopicGenerator({
                         delay: index * 0.05,
                         exit: { delay: (topics.length - 1 - index) * 0.02 },
                       }}
-                      className={`p-3 border border-gray-700 rounded-md cursor-pointer transition-all hover:bg-primary/10 ${
+                      className={`p-3 border-2 rounded-md cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground ${
                         selectedTopic === topic
-                          ? "bg-primary/20 border-primary"
-                          : ""
+                          ? "bg-primary/20 border-primary text-foreground"
+                          : "border-border bg-card text-foreground"
                       }`}
                       onClick={() => handleTopicClick(topic)}
                     >

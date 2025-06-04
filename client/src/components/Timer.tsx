@@ -148,15 +148,17 @@ export default function Timer({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >
-        <Card className="bg-surface border-gray-700">
+        <Card className="bg-card border-border border-2">
           <CardContent className="pt-6">
-            <h2 className="text-xl font-semibold mb-4">Timer Settings</h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
+              Timer Settings
+            </h2>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="flex-1">
                 <Label
                   htmlFor="minutes-input"
-                  className="block mb-2 text-sm font-medium"
+                  className="block mb-2 text-sm font-medium text-foreground"
                 >
                   Minutes
                 </Label>
@@ -167,13 +169,13 @@ export default function Timer({
                   onChange={(e) => setMinutes(parseInt(e.target.value) || 0)}
                   min={0}
                   max={60}
-                  className="bg-surface border-gray-700"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div className="flex-1">
                 <Label
                   htmlFor="seconds-input"
-                  className="block mb-2 text-sm font-medium"
+                  className="block mb-2 text-sm font-medium text-foreground"
                 >
                   Seconds
                 </Label>
@@ -184,7 +186,7 @@ export default function Timer({
                   onChange={(e) => setSeconds(parseInt(e.target.value) || 0)}
                   min={0}
                   max={59}
-                  className="bg-surface border-gray-700"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
             </div>
@@ -244,7 +246,7 @@ export default function Timer({
             cy="120"
             r="110"
             fill="none"
-            stroke={hideCountdown ? timerColor : "#333333"}
+            stroke={hideCountdown ? timerColor : "hsl(var(--muted))"}
             strokeWidth="8"
             className="transition-all duration-300"
           />

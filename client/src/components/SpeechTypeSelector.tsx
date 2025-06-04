@@ -28,9 +28,11 @@ export default function SpeechTypeSelector({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="bg-surface border-gray-700">
+      <Card className="bg-card border-border border-2">
         <CardContent className="pt-6">
-          <h2 className="text-xl font-semibold mb-4">Select Speech Type</h2>
+          <h2 className="text-xl font-semibold mb-4 text-foreground">
+            Select Speech Type
+          </h2>
           <RadioGroup
             value={selectedType}
             onValueChange={handleTypeChange}
@@ -44,10 +46,10 @@ export default function SpeechTypeSelector({
               />
               <Label
                 htmlFor="impromptu"
-                className={`px-5 py-3 border border-gray-700 rounded-full cursor-pointer flex items-center transition-all ${
+                className={`px-5 py-3 border-2 rounded-full cursor-pointer flex items-center transition-all ${
                   selectedType === SpeechType.IMPROMPTU
-                    ? "bg-primary text-black"
-                    : "bg-surface"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border hover:bg-accent hover:text-accent-foreground"
                 }`}
               >
                 <BoltIcon className="mr-2 h-4 w-4" />
@@ -63,10 +65,10 @@ export default function SpeechTypeSelector({
               />
               <Label
                 htmlFor="prepared"
-                className={`px-5 py-3 border border-gray-700 rounded-full cursor-pointer flex items-center transition-all ${
+                className={`px-5 py-3 border-2 rounded-full cursor-pointer flex items-center transition-all ${
                   selectedType === SpeechType.PREPARED
-                    ? "bg-primary text-black"
-                    : "bg-surface"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border hover:bg-accent hover:text-accent-foreground"
                 }`}
               >
                 <FileTextIcon className="mr-2 h-4 w-4" />
@@ -82,10 +84,10 @@ export default function SpeechTypeSelector({
               />
               <Label
                 htmlFor="evaluative"
-                className={`px-5 py-3 border border-gray-700 rounded-full cursor-pointer flex items-center transition-all ${
+                className={`px-5 py-3 border-2 rounded-full cursor-pointer flex items-center transition-all ${
                   selectedType === SpeechType.EVALUATIVE
-                    ? "bg-primary text-black"
-                    : "bg-surface"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border hover:bg-accent hover:text-accent-foreground"
                 }`}
               >
                 <StarHalfIcon className="mr-2 h-4 w-4" />

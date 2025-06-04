@@ -30,7 +30,9 @@ export default function useCountdownTimer(
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [hideCountdown, setHideCountdown] = useState<boolean>(false);
   const [timeAlert, setTimeAlert] = useState<string | null>(null);
-  const [timerColor, setTimerColor] = useState<string>("#FFFFFF");
+  const [timerColor, setTimerColor] = useState<string>(
+    "hsl(var(--foreground))"
+  );
 
   // Calculate total and remaining time
   const [totalTime, setTotalTime] = useState<number>(minutes * 60 + seconds);
@@ -112,7 +114,7 @@ export default function useCountdownTimer(
     } else if (remainingTime <= thresholds.GREEN) {
       setTimerColor("#4CAF50"); // Green
     } else {
-      setTimerColor("#FFFFFF"); // White - default
+      setTimerColor("hsl(var(--foreground))"); // Theme-aware default
     }
   }, [remainingTime]);
 
@@ -311,7 +313,7 @@ export default function useCountdownTimer(
     setTotalTime(total);
     setRemainingTime(total);
     setProgress(1);
-    setTimerColor("#FFFFFF");
+    setTimerColor("hsl(var(--foreground))");
 
     // If timer was running, restart it
     if (isRunning) {
@@ -344,7 +346,7 @@ export default function useCountdownTimer(
     setTotalTime(total);
     setRemainingTime(total);
     setProgress(1);
-    setTimerColor("#FFFFFF");
+    setTimerColor("hsl(var(--foreground))");
 
     console.log("Timer stopped");
   }, [speechType]);
