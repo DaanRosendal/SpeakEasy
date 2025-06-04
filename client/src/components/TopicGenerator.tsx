@@ -15,7 +15,7 @@ import { THEMES } from "@/lib/constants";
 import { getRandomTopics, type Theme } from "@/data/topics";
 
 interface TopicGeneratorProps {
-  onTopicSelect: (topic: string) => void;
+  onTopicSelect: (topic: string | null) => void;
   selectedTopic: string | null;
 }
 
@@ -39,6 +39,9 @@ export default function TopicGenerator({
   const handleGenerateTopics = useCallback(() => {
     setIsLoading(true);
 
+    // Clear the selected topic when generating new topics
+    onTopicSelect(null);
+
     // Add a small delay to simulate loading for better UX
     setTimeout(() => {
       try {
@@ -56,7 +59,7 @@ export default function TopicGenerator({
         setIsLoading(false);
       }
     }, 200);
-  }, [selectedTheme, showTopics]);
+  }, [selectedTheme, showTopics, onTopicSelect]);
 
   const handleTopicClick = useCallback(
     (topic: string) => {

@@ -58,7 +58,7 @@ export default function SpeechCompletionScreen({
                   className="flex items-center"
                 >
                   <RotateCcwIcon className="mr-2 h-4 w-4" />
-                  Practice Again
+                  Repeat Speech
                 </Button>
                 <Button onClick={onNewSpeech} className="flex items-center">
                   <HomeIcon className="mr-2 h-4 w-4" />

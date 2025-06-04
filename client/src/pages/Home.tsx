@@ -31,7 +31,7 @@ export default function Home() {
     setCustomSeconds(null);
   }, []);
 
-  const handleTopicSelect = useCallback((topic: string) => {
+  const handleTopicSelect = useCallback((topic: string | null) => {
     setSelectedTopic(topic);
   }, []);
 
