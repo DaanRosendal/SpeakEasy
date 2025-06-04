@@ -31,9 +31,14 @@ export const PREPARED_THRESHOLDS = {
 };
 
 export const THEMES = [
-  { id: "business", name: "Business & Leadership" },
-  { id: "technology", name: "Technology & Innovation" },
-  { id: "social", name: "Social Issues" },
-  { id: "philosophy", name: "Philosophy & Ethics" },
-  { id: "environment", name: "Environment & Sustainability" },
+  { id: "business", name: "Business" },
+  { id: "technology", name: "Technology" },
+  { id: "politics", name: "Politics" },
+  { id: "philosophy", name: "Philosophy" },
+  { id: "environment", name: "Environment" },
+  { id: "health", name: "Health" },
+  { id: "education", name: "Education" },
+  { id: "culture", name: "Culture" },
+  { id: "science", name: "Science" },
+  { id: "sports", name: "Sports" },
 ];

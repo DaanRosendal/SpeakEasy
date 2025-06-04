@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Shuffle } from "lucide-react";
+import { THEMES } from "@/lib/constants";
 
 interface TopicGeneratorProps {
   onTopicSelect: (topic: string) => void;
@@ -23,20 +24,13 @@ interface Theme {
   name: string;
 }
 
-const themes: Theme[] = [
-  { id: "business", name: "Business & Leadership" },
-  { id: "technology", name: "Technology & Innovation" },
-  { id: "social", name: "Social Issues" },
-  { id: "philosophy", name: "Philosophy & Ethics" },
-  { id: "environment", name: "Environment & Sustainability" },
-];
-
 export default function TopicGenerator({
   onTopicSelect,
   selectedTopic,
 }: TopicGeneratorProps) {
   const [selectedTheme, setSelectedTheme] = useState<string>("technology");
   const [showTopics, setShowTopics] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
 
   const {
     data: topics = [],
@@ -50,11 +44,16 @@ export default function TopicGenerator({
   const handleThemeChange = useCallback((value: string) => {
     setSelectedTheme(value);
     setShowTopics(false);
+    setAnimationKey((prev) => prev + 1);
   }, []);
 
   const handleGenerateTopics = useCallback(() => {
+    // If topics are already showing, increment animation key for smooth transition
+    if (showTopics) {
+      setAnimationKey((prev) => prev + 1);
+    }
     refetch().then(() => setShowTopics(true));
-  }, [refetch]);
+  }, [refetch, showTopics]);
 
   const handleTopicClick = useCallback(
     (topic: string) => {
@@ -88,7 +87,7 @@ export default function TopicGenerator({
                 <SelectValue placeholder="Select a theme" />
               </SelectTrigger>
               <SelectContent>
-                {themes.map((theme) => (
+                {THEMES.map((theme) => (
                   <SelectItem key={theme.id} value={theme.id}>
                     {theme.name}
                   </SelectItem>
@@ -106,31 +105,45 @@ export default function TopicGenerator({
             Generate Topics
           </Button>
 
-          {showTopics && topics.length > 0 && (
-            <div className="mt-4">
-              <p className="text-sm mb-2">
-                Select a topic for your impromptu speech:
-              </p>
-              <div className="space-y-2">
-                {topics.map((topic, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.05 }}
-                    className={`p-3 border border-gray-700 rounded-md cursor-pointer transition-all hover:bg-primary/10 ${
-                      selectedTopic === topic
-                        ? "bg-primary/20 border-primary"
-                        : ""
-                    }`}
-                    onClick={() => handleTopicClick(topic)}
-                  >
-                    <p>{topic}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {showTopics && topics.length > 0 && (
+              <motion.div
+                key={animationKey}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4"
+              >
+                <p className="text-sm mb-2">
+                  Select a topic for your impromptu speech:
+                </p>
+                <div className="space-y-2">
+                  {topics.map((topic, index) => (
+                    <motion.div
+                      key={`${animationKey}-${index}`}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{
+                        duration: 0.2,
+                        delay: index * 0.05,
+                        exit: { delay: (topics.length - 1 - index) * 0.02 },
+                      }}
+                      className={`p-3 border border-gray-700 rounded-md cursor-pointer transition-all hover:bg-primary/10 ${
+                        selectedTopic === topic
+                          ? "bg-primary/20 border-primary"
+                          : ""
+                      }`}
+                      onClick={() => handleTopicClick(topic)}
+                    >
+                      <p>{topic}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </CardContent>
       </Card>
     </motion.div>
