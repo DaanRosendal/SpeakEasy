@@ -3,7 +3,12 @@ import { useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { BoltIcon, FileTextIcon, StarHalfIcon } from "lucide-react";
+import {
+  BoltIcon,
+  FileTextIcon,
+  StarHalfIcon,
+  FlaskConicalIcon,
+} from "lucide-react";
 import { SpeechType } from "@/lib/constants";
 
 interface SpeechTypeSelectorProps {
@@ -15,9 +20,12 @@ export default function SpeechTypeSelector({
   selectedType,
   onTypeChange,
 }: SpeechTypeSelectorProps) {
-  const handleTypeChange = useCallback((value: string) => {
-    onTypeChange(value as SpeechType);
-  }, [onTypeChange]);
+  const handleTypeChange = useCallback(
+    (value: string) => {
+      onTypeChange(value as SpeechType);
+    },
+    [onTypeChange]
+  );
 
   return (
     <motion.div
@@ -42,7 +50,9 @@ export default function SpeechTypeSelector({
               <Label
                 htmlFor="impromptu"
                 className={`px-5 py-3 border border-gray-700 rounded-full cursor-pointer flex items-center transition-all ${
-                  selectedType === SpeechType.IMPROMPTU ? "bg-primary text-black" : "bg-surface"
+                  selectedType === SpeechType.IMPROMPTU
+                    ? "bg-primary text-black"
+                    : "bg-surface"
                 }`}
               >
                 <BoltIcon className="mr-2 h-4 w-4" />
@@ -59,7 +69,9 @@ export default function SpeechTypeSelector({
               <Label
                 htmlFor="prepared"
                 className={`px-5 py-3 border border-gray-700 rounded-full cursor-pointer flex items-center transition-all ${
-                  selectedType === SpeechType.PREPARED ? "bg-primary text-black" : "bg-surface"
+                  selectedType === SpeechType.PREPARED
+                    ? "bg-primary text-black"
+                    : "bg-surface"
                 }`}
               >
                 <FileTextIcon className="mr-2 h-4 w-4" />
@@ -76,11 +88,32 @@ export default function SpeechTypeSelector({
               <Label
                 htmlFor="evaluative"
                 className={`px-5 py-3 border border-gray-700 rounded-full cursor-pointer flex items-center transition-all ${
-                  selectedType === SpeechType.EVALUATIVE ? "bg-primary text-black" : "bg-surface"
+                  selectedType === SpeechType.EVALUATIVE
+                    ? "bg-primary text-black"
+                    : "bg-surface"
                 }`}
               >
                 <StarHalfIcon className="mr-2 h-4 w-4" />
                 Evaluative (2.5 min)
+              </Label>
+            </div>
+
+            <div className="speech-type-option">
+              <RadioGroupItem
+                value={SpeechType.TEST}
+                id="test"
+                className="sr-only"
+              />
+              <Label
+                htmlFor="test"
+                className={`px-5 py-3 border border-gray-700 rounded-full cursor-pointer flex items-center transition-all ${
+                  selectedType === SpeechType.TEST
+                    ? "bg-primary text-black"
+                    : "bg-surface"
+                }`}
+              >
+                <FlaskConicalIcon className="mr-2 h-4 w-4" />
+                Test (7 sec)
               </Label>
             </div>
           </RadioGroup>
