@@ -14,7 +14,7 @@ import {
 import {
   PlayIcon,
   PauseIcon,
-  StopCircleIcon,
+  Square,
   RotateCcwIcon,
   EyeIcon,
   EyeOffIcon,
@@ -308,11 +308,6 @@ export default function Timer({
           size="icon"
           onClick={handlePauseResume}
           disabled={!isRunning}
-          className={
-            isRunning
-              ? "bg-gray-700 hover:bg-gray-600"
-              : "bg-gray-800 opacity-50"
-          }
         >
           {isPaused ? (
             <PlayIcon className="h-4 w-4" />
@@ -343,8 +338,8 @@ export default function Timer({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <Button variant="default" size="icon" onClick={handleStopSpeech}>
-          <StopCircleIcon className="h-4 w-4" />
+        <Button variant="secondary" size="icon" onClick={handleStopSpeech}>
+          <Square className="h-4 w-4 fill-current" />
         </Button>
       </div>
     </motion.div>
