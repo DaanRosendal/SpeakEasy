@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,15 +12,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { Shuffle } from "lucide-react";
 import { THEMES } from "@/lib/constants";
+import { getRandomTopics, type Theme } from "@/data/topics";
 
 interface TopicGeneratorProps {
   onTopicSelect: (topic: string) => void;
   selectedTopic: string | null;
-}
-
-interface Theme {
-  id: string;
-  name: string;
 }
 
 export default function TopicGenerator({
@@ -29,31 +24,39 @@ export default function TopicGenerator({
   selectedTopic,
 }: TopicGeneratorProps) {
   const [selectedTheme, setSelectedTheme] = useState<string>("technology");
+  const [topics, setTopics] = useState<string[]>([]);
   const [showTopics, setShowTopics] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
-
-  const {
-    data: topics = [],
-    refetch,
-    isLoading,
-  } = useQuery<string[]>({
-    queryKey: [`/api/topics/${selectedTheme}`],
-    enabled: false,
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleThemeChange = useCallback((value: string) => {
     setSelectedTheme(value);
     setShowTopics(false);
+    setTopics([]);
     setAnimationKey((prev) => prev + 1);
   }, []);
 
   const handleGenerateTopics = useCallback(() => {
-    // If topics are already showing, increment animation key for smooth transition
-    if (showTopics) {
-      setAnimationKey((prev) => prev + 1);
-    }
-    refetch().then(() => setShowTopics(true));
-  }, [refetch, showTopics]);
+    setIsLoading(true);
+
+    // Add a small delay to simulate loading for better UX
+    setTimeout(() => {
+      try {
+        const newTopics = getRandomTopics(selectedTheme as Theme, 3);
+        setTopics(newTopics);
+        setShowTopics(true);
+
+        // If topics are already showing, increment animation key for smooth transition
+        if (showTopics) {
+          setAnimationKey((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error("Error generating topics:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 200);
+  }, [selectedTheme, showTopics]);
 
   const handleTopicClick = useCallback(
     (topic: string) => {
