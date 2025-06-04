@@ -2,10 +2,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   SpeechType,
   DEFAULT_TIMES,
-  TEST_MODE_TIMES,
   IS_DEV_MODE,
-  TEST_MODE_COLOR_THRESHOLDS,
-  PROD_MODE_COLOR_THRESHOLDS,
+  IMPROMPTU_AND_EVALUATIVE_THRESHOLDS,
+  PREPARED_THRESHOLDS,
 } from "@/lib/constants";
 
 export default function useCountdownTimer(
@@ -58,10 +57,13 @@ export default function useCountdownTimer(
         ORANGE: Math.ceil(totalTime * 0.16),
         RED: 0,
       };
-    } else if (speechType === SpeechType.TEST) {
-      return TEST_MODE_COLOR_THRESHOLDS;
     } else {
-      return PROD_MODE_COLOR_THRESHOLDS;
+      // Use speech-type specific thresholds for default timings
+      if (speechType === SpeechType.PREPARED) {
+        return PREPARED_THRESHOLDS;
+      } else {
+        return IMPROMPTU_AND_EVALUATIVE_THRESHOLDS;
+      }
     }
   }, [speechType, totalTime]);
 
@@ -208,19 +210,22 @@ export default function useCountdownTimer(
             );
           }
         }
-      } else if (speechType === SpeechType.TEST) {
-        // Test mode alerts (5 seconds = green, 3 seconds = orange)
-        if (newRemainingTime === thresholds.GREEN) {
-          showAlert(`${thresholds.GREEN} seconds remaining`);
-        } else if (newRemainingTime === thresholds.ORANGE) {
-          showAlert(`${thresholds.ORANGE} seconds remaining`);
-        }
       } else {
-        // Production mode alerts (60 seconds = 1 minute, 30 seconds)
-        if (newRemainingTime === thresholds.GREEN) {
-          showAlert("1 minute remaining");
-        } else if (newRemainingTime === thresholds.ORANGE) {
-          showAlert("30 seconds remaining");
+        // Production mode alerts based on speech type
+        if (speechType === SpeechType.PREPARED) {
+          // Prepared speech alerts (2 minutes = green, 1 minute = orange)
+          if (newRemainingTime === thresholds.GREEN) {
+            showAlert("2 minutes remaining");
+          } else if (newRemainingTime === thresholds.ORANGE) {
+            showAlert("1 minute remaining");
+          }
+        } else {
+          // Impromptu & Evaluative alerts (1 minute = green, 30 seconds = orange)
+          if (newRemainingTime === thresholds.GREEN) {
+            showAlert("1 minute remaining");
+          } else if (newRemainingTime === thresholds.ORANGE) {
+            showAlert("30 seconds remaining");
+          }
         }
       }
 
