@@ -107,16 +107,23 @@ export default function useCountdownTimer(
   // Update timer color based on remaining time
   useEffect(() => {
     const thresholds = getColorThresholds();
+    let newColor;
+
     if (remainingTime <= thresholds.RED) {
-      setTimerColor("#F44336"); // Red - time's up
+      newColor = "#F44336"; // Red - time's up
     } else if (remainingTime <= thresholds.ORANGE) {
-      setTimerColor("#FF9800"); // Orange
+      newColor = "#F39C12"; // A vibrant, non-pastel orange
     } else if (remainingTime <= thresholds.GREEN) {
-      setTimerColor("#4CAF50"); // Green
+      newColor = "#4CAF50"; // Green
     } else {
-      setTimerColor("hsl(var(--foreground))"); // Theme-aware default
+      newColor = "hsl(var(--foreground))"; // Theme-aware default
     }
-  }, [remainingTime]);
+
+    // Only update if color actually changed
+    if (newColor !== timerColor) {
+      setTimerColor(newColor);
+    }
+  }, [remainingTime, timerColor, getColorThresholds]);
 
   // Update progress based on remaining time
   useEffect(() => {

@@ -91,7 +91,7 @@ export default function Home() {
       ) : (
         <div className="max-w-3xl w-full relative">
           {/* Header */}
-          <header className="flex justify-between items-center mb-6">
+          <header className="flex justify-between items-center mb-6 relative z-20">
             <div className="flex items-center">
               <h1 className="text-3xl font-semibold text-primary">
                 <svg
@@ -116,7 +116,7 @@ export default function Home() {
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
-                className="text-foreground"
+                className="text-foreground relative z-20"
               >
                 {isDark ? (
                   <Sun className="h-5 w-5" />
@@ -128,7 +128,7 @@ export default function Home() {
                 variant="ghost"
                 size="icon"
                 onClick={toggleFullscreen}
-                className="text-foreground"
+                className="text-foreground relative z-20"
               >
                 <Expand className="h-5 w-5" />
               </Button>

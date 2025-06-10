@@ -116,6 +116,33 @@ export default function Timer({
     }
   }, [isSpeechActive, isRunning, startTimer]);
 
+  // Convert hex color to RGB for background overlay, handle CSS variables
+  const getColorRgb = (color: string) => {
+    // Handle hex colors
+    if (color.startsWith("#")) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+      return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+          }
+        : { r: 0, g: 0, b: 0 };
+    }
+
+    // Handle specific colors we know
+    if (color === "#4CAF50") {
+      return { r: 76, g: 175, b: 80 }; // Green
+    } else if (color === "#F39C12") {
+      return { r: 243, g: 156, b: 18 }; // Matches #F39C12
+    } else if (color === "#F44336") {
+      return { r: 244, g: 67, b: 54 }; // Red
+    }
+
+    // Return null for CSS variables - no background overlay
+    return null;
+  };
+
   const handleStartSpeech = () => {
     // Call the onStartSpeech callback first (if provided) to check if speech should start
     if (onStartSpeech) {
@@ -231,117 +258,128 @@ export default function Timer({
     );
   }
 
+  const rgb = getColorRgb(timerColor);
+
   return (
-    <motion.div
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col items-center justify-center"
-    >
-      <div className="relative h-64 w-64 flex items-center justify-center">
-        <svg className="absolute" width="240" height="240">
-          {/* Base circle - always visible */}
-          <circle
-            cx="120"
-            cy="120"
-            r="110"
-            fill="none"
-            stroke={hideCountdown ? timerColor : "hsl(var(--muted))"}
-            strokeWidth="8"
-            className="transition-all duration-300"
-          />
-          {/* Progress circle - hidden when hideCountdown is true */}
-          <circle
-            cx="120"
-            cy="120"
-            r="110"
-            fill="none"
-            stroke={timerColor}
-            strokeWidth="8"
-            strokeLinecap="round"
-            strokeDasharray="691"
-            strokeDashoffset={`${691 - 691 * (isNaN(progress) ? 1 : progress)}`}
-            className={`transition-all duration-1000 ${
-              hideCountdown ? "opacity-0" : "opacity-100"
-            }`}
-          />
-        </svg>
+    <>
+      {/* Full-page background color overlay - only show when we have a color */}
+      {rgb && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 pointer-events-none z-0"
+          style={{
+            background: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
+            transition: "background 1s ease-in",
+          }}
+        />
+      )}
 
-        <div className="flex flex-col items-center justify-center">
-          <div
-            className={`font-mono text-5xl font-semibold transition-opacity duration-300 ${
-              hideCountdown ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            {`${minutes}:${seconds.toString().padStart(2, "0")}`}
-          </div>
-          <AnimatePresence>
-            {timeAlert && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="text-center mt-2"
-              >
-                <p
-                  className={`text-lg font-medium ${
-                    timerColor === "#4CAF50"
-                      ? "text-[#4CAF50]"
-                      : timerColor === "#FF9800"
-                      ? "text-[#FF9800]"
-                      : timerColor === "#F44336"
-                      ? "text-[#F44336]"
-                      : ""
-                  }`}
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col items-center justify-center relative z-10"
+      >
+        <div className="relative h-64 w-64 flex items-center justify-center">
+          <svg className="absolute" width="240" height="240">
+            {/* Base circle - always visible */}
+            <circle
+              cx="120"
+              cy="120"
+              r="110"
+              fill="none"
+              stroke={hideCountdown ? timerColor : "hsl(var(--muted))"}
+              strokeWidth="8"
+              className="transition-all duration-1000"
+            />
+            {/* Progress circle - hidden when hideCountdown is true */}
+            <circle
+              cx="120"
+              cy="120"
+              r="110"
+              fill="none"
+              stroke={timerColor}
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray="691"
+              strokeDashoffset={`${
+                691 - 691 * (isNaN(progress) ? 1 : progress)
+              }`}
+              className={`transition-all duration-1000 ${
+                hideCountdown ? "opacity-0" : "opacity-100"
+              }`}
+            />
+          </svg>
+
+          <div className="flex flex-col items-center justify-center">
+            <div
+              className={`font-mono text-5xl font-semibold transition-opacity duration-300 ${
+                hideCountdown ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              {`${minutes}:${seconds.toString().padStart(2, "0")}`}
+            </div>
+            <AnimatePresence>
+              {timeAlert && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="text-center mt-2"
                 >
-                  {timeAlert}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <p className="text-lg font-medium text-foreground">
+                    {timeAlert}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-6 flex items-center justify-center space-x-4">
-        <Button
-          variant="secondary"
-          size="icon"
-          onClick={handlePauseResume}
-          disabled={!isRunning}
-        >
-          {isPaused ? (
-            <PlayIcon className="h-4 w-4" />
-          ) : (
-            <PauseIcon className="h-4 w-4" />
-          )}
-        </Button>
-        <Button variant="secondary" size="icon" onClick={resetTimer}>
-          <RotateCcwIcon className="h-4 w-4" />
-        </Button>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="secondary"
-                size="icon"
-                onClick={() => setHideCountdown(!hideCountdown)}
-              >
-                {hideCountdown ? (
-                  <EyeOffIcon className="h-4 w-4" />
-                ) : (
-                  <EyeIcon className="h-4 w-4" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{hideCountdown ? "Show countdown" : "Hide countdown"}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <Button variant="secondary" size="icon" onClick={handleStopSpeech}>
-          <Square className="h-4 w-4 fill-current" />
-        </Button>
-      </div>
-    </motion.div>
+        <div className="mt-6 flex items-center justify-center space-x-4">
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={handlePauseResume}
+            disabled={!isRunning}
+          >
+            {isPaused ? (
+              <PlayIcon className="h-4 w-4" />
+            ) : (
+              <PauseIcon className="h-4 w-4" />
+            )}
+          </Button>
+          <Button variant="secondary" size="icon" onClick={resetTimer}>
+            <RotateCcwIcon className="h-4 w-4" />
+          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => setHideCountdown(!hideCountdown)}
+                >
+                  {hideCountdown ? (
+                    <EyeOffIcon className="h-4 w-4" />
+                  ) : (
+                    <EyeIcon className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{hideCountdown ? "Show countdown" : "Hide countdown"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Button variant="secondary" size="icon" onClick={handleStopSpeech}>
+            <Square className="h-4 w-4 fill-current" />
+          </Button>
+        </div>
+      </motion.div>
+    </>
   );
 }
